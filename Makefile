@@ -1,14 +1,18 @@
-BINARY_NAME=wappsto-connector
+BINARY_NAME=wappsto-kafka-connector
+VERSION := 0.1.0
 
-all: build test
+all: build
 
 build:
-	go build -o ${BINARY_NAME} main.go
+	@echo "Compiling source"
+	mkdir -p bin
+	go build $(GO_EXTRA_BUILD_ARGS) -ldflags "-s -w -X main.version=$(VERSION)" -o bin/${BINARY_NAME} cmd/wappsto-kafka-connector/main.go
 
-run:
-	go build -o ${BINARY_NAME} main.go
-	./${BINARY_NAME}
+run: build
+	@echo "Starting Wappsto connector to Kafka service"
+	./bin/${BINARY_NAME}
 
 clean:
+	@echo "cleaning builds"
 	go clean
-	rm ${BINARY_NAME}
+	rm ./bin/${BINARY_NAME}
