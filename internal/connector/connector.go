@@ -23,7 +23,7 @@ func connectProducer(brokersUrl []string) (sarama.SyncProducer, error) {
 
 func PushMessageToQueue(topic string, message []byte) error {
 
-	brokersUrl := []string{config.C.Kafka.Bind}
+	brokersUrl := []string{config.C.Kafka.Connect}
 	producer, err := connectProducer(brokersUrl)
 	if err != nil {
 		return err

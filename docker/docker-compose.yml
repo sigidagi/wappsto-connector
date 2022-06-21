@@ -21,6 +21,16 @@ services:
     depends_on:
       - zookeeper
 
+  wappsto-connector:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    environment:
+      - KAFKA__CONNECT=kafka:9092
+    depends_on:
+      - kafka
+    restart: always
+
 volumes:
   zookeeper_data:
     driver: local

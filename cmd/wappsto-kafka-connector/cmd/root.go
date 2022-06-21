@@ -1,19 +1,20 @@
 package cmd
 
 import (
-	"fmt"
-	"io/ioutil"
-	"os"
-	"os/signal"
-	"syscall"
-	"wappsto-kafka-connector/internal/config"
-	"wappsto-kafka-connector/internal/wappsto"
-
 	"bytes"
+	"fmt"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io/ioutil"
+	"os"
+	"os/signal"
+	"reflect"
+	"strings"
+	"syscall"
+	"wappsto-kafka-connector/internal/config"
+	"wappsto-kafka-connector/internal/wappsto"
 )
 
 var version string
@@ -124,10 +125,43 @@ func initConfig() {
 		log.Printf("All keys: %s", viper.AllKeys())
 	}
 
+	viperBindEnvs(config.C)
+
 	if err := viper.Unmarshal(&config.C); err != nil {
 		log.WithError(err).Fatal("unmarshal config error")
 	}
 
+}
+
+/**
+If environmental variable is defined for configuration, such environental variable will be preoritized
+instead of key value pair in configuration file.
+*/
+func viperBindEnvs(iface interface{}, parts ...string) {
+	ifv := reflect.ValueOf(iface)
+	ift := reflect.TypeOf(iface)
+	for i := 0; i < ift.NumField(); i++ {
+		v := ifv.Field(i)
+		t := ift.Field(i)
+		tv, ok := t.Tag.Lookup("mapstructure")
+		if !ok {
+			tv = strings.ToLower(t.Name)
+		}
+		if tv == "-" {
+			continue
+		}
+
+		switch v.Kind() {
+		case reflect.Struct:
+			viperBindEnvs(v.Interface(), append(parts, tv)...)
+		default:
+			// Bash doesn't allow env variable names with a dot so
+			// bind the double underscore version.
+			keyDot := strings.Join(append(parts, tv), ".")
+			keyUnderscore := strings.Join(append(parts, tv), "__")
+			viper.BindEnv(keyDot, strings.ToUpper(keyUnderscore))
+		}
+	}
 }
 
 func Execute(v string) {

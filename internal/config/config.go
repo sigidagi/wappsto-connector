@@ -8,7 +8,7 @@ type Config struct {
 	} `toml:"wappsto"`
 
 	Kafka struct {
-		Bind string `toml:"bind"`
+		Connect string `toml:"connect"`
 	}
 }
 
