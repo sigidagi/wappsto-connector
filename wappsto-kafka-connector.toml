@@ -1,0 +1,6 @@
+[wappsto]
+    username = ""
+    password = ""
+    server = "wappsto.com"
+[kafka]
+    connect = "localhost:9092"

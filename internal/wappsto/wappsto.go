@@ -3,17 +3,12 @@ package wappsto
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/pkg/errors"
-
-	//"fmt"
-	//"github.com/BurntSushi/toml"
-	//"github.com/Shopify/sarama"
-	"log"
-	"net/http"
-
 	"github.com/gorilla/websocket"
 	"github.com/mitchellh/mapstructure"
-	"net/http/httputil"
+	"github.com/pkg/errors"
+	"log"
+	"net/http"
+	//"net/http/httputil"
 	"time"
 	"wappsto-kafka-connector/internal/config"
 	"wappsto-kafka-connector/internal/connector"
@@ -41,6 +36,13 @@ var done chan interface{}
 
 func Setup(conf config.Config) error {
 
+	if conf.Wappsto.Username == "" {
+		return errors.New("Wappsto username in configuration file is not provoded")
+	}
+	if conf.Wappsto.Password == "" {
+		return errors.New("Wappsto password in configuration file is not provoded")
+	}
+
 	var endpoint = "/services/session"
 	url := "https://" + config.C.Wappsto.Server + endpoint
 	data, _ := json.Marshal(map[string]string{
@@ -48,7 +50,7 @@ func Setup(conf config.Config) error {
 		"password": conf.Wappsto.Password,
 	})
 
-	log.Printf("url: %s\n", url)
+	log.Printf("Wappsto session url: %s\n", url)
 
 	result, err := requestWappsto(http.MethodPost, url, data)
 	if err != nil {
@@ -83,10 +85,11 @@ func requestWappsto(method, url string, data []byte) (interface{}, error) {
 	client := &http.Client{
 		Timeout: time.Second * 5,
 	}
-
-	reqDump, err := httputil.DumpRequestOut(request, true)
-	log.Printf("\nREQUEST:\n%s", string(reqDump))
-
+	/*
+	 *    reqDump, err := httputil.DumpRequestOut(request, true)
+	 *    log.Printf("\nREQUEST:\n%s", string(reqDump))
+	 *
+	 */
 	response, err := client.Do(request)
 	if err != nil {
 		return nil, err

@@ -70,6 +70,7 @@ func init() {
 
 	cobra.OnInitialize(initConfig)
 	viper.SetDefault("wappsto.server", "wappsto.com")
+	viper.SetDefault("kafka.connect", "localhost:9092")
 
 	rootCmd.AddCommand(versionCmd)
 }
@@ -90,7 +91,6 @@ func setupWappsto() error {
 }
 
 func handleWappstoStream() error {
-	// TODO:
 	go wappsto.HandleWappstoStream()
 	return nil
 }
@@ -121,8 +121,6 @@ func initConfig() {
 				log.WithError(err).Fatal("read configuration file " + confName + ".toml error")
 			}
 		}
-
-		log.Printf("All keys: %s", viper.AllKeys())
 	}
 
 	viperBindEnvs(config.C)

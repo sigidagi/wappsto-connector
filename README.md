@@ -1,4 +1,8 @@
 
+##
+
+
+
 ## Docker
 
 Using docker-compose to build `wappsto-kafka-connector` with all its dependencies.
@@ -18,4 +22,9 @@ Follow appilication logs:
 ```
 docker container logs docker_wappsto-connector_1 -f
 ```
+
+
+Stop all container
+docker stop $(docker ps -q)
+docker-compose up --build
 
